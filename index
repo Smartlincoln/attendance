@@ -2,28 +2,99 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Roll Number Counter</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
+      margin: 0;
+      padding: 10px;
+      background: #f5f5f5;
     }
+
+    h2 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
     table {
       border-collapse: collapse;
       width: 100%;
     }
+
     th, td {
-      border: 1px solid #ccc;
+      border-bottom: 1px solid #eee;
       padding: 10px;
       text-align: center;
     }
+
+    th {
+      background: #007bff;
+      color: white;
+      position: sticky;
+      top: 0;
+    }
+
     input {
       width: 60px;
+      padding: 5px;
       text-align: center;
+      font-size: 16px;
     }
+
     button {
-      padding: 5px 10px;
-      cursor: pointer;
+      padding: 6px 10px;
+      border: none;
+      background: #dc3545;
+      color: white;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fff;
+      }
+
+      td {
+        border: none;
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+      }
+
+      td::before {
+        font-weight: bold;
+      }
+
+      td:nth-child(1)::before { content: "Roll"; }
+      td:nth-child(2)::before { content: "Value"; }
+      td:nth-child(3)::before { content: "Action"; }
     }
   </style>
 </head>
@@ -31,19 +102,28 @@
 
 <h2>Roll Number Counter (1–70)</h2>
 
-<table>
-  <thead>
-    <tr>
-      <th>Roll Number</th>
-      <th>Value</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody id="tableBody"></tbody>
-</table>
+<div class="container">
+  <table>
+    <thead>
+      <tr>
+        <th>Roll Number</th>
+        <th>Value</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
 
 <script>
   const tableBody = document.getElementById("tableBody");
+
+  // Load saved data or initialize
+  let data = JSON.parse(localStorage.getItem("rollData")) || {};
+
+  function saveData() {
+    localStorage.setItem("rollData", JSON.stringify(data));
+  }
 
   for (let i = 1; i <= 70; i++) {
     const row = document.createElement("tr");
@@ -54,7 +134,13 @@
     const inputCell = document.createElement("td");
     const input = document.createElement("input");
     input.type = "number";
-    input.value = 0;
+    input.value = data[i] ?? 0;
+
+    input.addEventListener("input", () => {
+      data[i] = parseInt(input.value) || 0;
+      saveData();
+    });
+
     inputCell.appendChild(input);
 
     const actionCell = document.createElement("td");
@@ -64,7 +150,10 @@
     button.addEventListener("click", () => {
       let currentValue = parseInt(input.value) || 0;
       if (currentValue > 0) {
-        input.value = currentValue - 1;
+        currentValue--;
+        input.value = currentValue;
+        data[i] = currentValue;
+        saveData();
       }
     });
 
