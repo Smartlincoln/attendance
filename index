@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Roll Number Counter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    input {
+      width: 60px;
+      text-align: center;
+    }
+    button {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Roll Number Counter (1–70)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Roll Number</th>
+      <th>Value</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+  const tableBody = document.getElementById("tableBody");
+
+  for (let i = 1; i <= 70; i++) {
+    const row = document.createElement("tr");
+
+    const rollCell = document.createElement("td");
+    rollCell.textContent = i;
+
+    const inputCell = document.createElement("td");
+    const input = document.createElement("input");
+    input.type = "number";
+    input.value = 0;
+    inputCell.appendChild(input);
+
+    const actionCell = document.createElement("td");
+    const button = document.createElement("button");
+    button.textContent = "Decrease";
+
+    button.addEventListener("click", () => {
+      let currentValue = parseInt(input.value) || 0;
+      if (currentValue > 0) {
+        input.value = currentValue - 1;
+      }
+    });
+
+    actionCell.appendChild(button);
+
+    row.appendChild(rollCell);
+    row.appendChild(inputCell);
+    row.appendChild(actionCell);
+
+    tableBody.appendChild(row);
+  }
+</script>
+
+</body>
+</html>
