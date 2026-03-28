@@ -12,9 +12,7 @@
       background: #f5f5f5;
     }
 
-    h2 {
-      text-align: center;
-    }
+    h2 { text-align: center; }
 
     .container {
       max-width: 900px;
@@ -25,10 +23,7 @@
       overflow: hidden;
     }
 
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
+    table { border-collapse: collapse; width: 100%; }
 
     th, td {
       border-bottom: 1px solid #eee;
@@ -59,19 +54,11 @@
       font-size: 14px;
     }
 
-    button:active {
-      transform: scale(0.95);
-    }
+    .done { background: #c8f7c5 !important; }
 
-    /* Mobile Styles */
     @media (max-width: 600px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
-      }
-
-      thead {
-        display: none;
-      }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
 
       tr {
         margin-bottom: 10px;
@@ -88,13 +75,11 @@
         padding: 8px 0;
       }
 
-      td::before {
-        font-weight: bold;
-      }
-
+      td::before { font-weight: bold; }
       td:nth-child(1)::before { content: "Roll"; }
-      td:nth-child(2)::before { content: "Value"; }
-      td:nth-child(3)::before { content: "Action"; }
+      td:nth-child(2)::before { content: "Input"; }
+      td:nth-child(3)::before { content: "Progress"; }
+      td:nth-child(4)::before { content: "Action"; }
     }
   </style>
 </head>
@@ -106,8 +91,9 @@
   <table>
     <thead>
       <tr>
-        <th>Roll Number</th>
-        <th>Value</th>
+        <th>Roll</th>
+        <th>Input</th>
+        <th>Progress</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -118,14 +104,23 @@
 <script>
   const tableBody = document.getElementById("tableBody");
 
-  // Load saved data or initialize
   let data = JSON.parse(localStorage.getItem("rollData")) || {};
 
   function saveData() {
     localStorage.setItem("rollData", JSON.stringify(data));
   }
 
+  function updateRowStyle(row, current, max) {
+    if (max > 0 && current === 0) {
+      row.classList.add("done");
+    } else {
+      row.classList.remove("done");
+    }
+  }
+
   for (let i = 1; i <= 70; i++) {
+    if (!data[i]) data[i] = { current: 0, max: 0 };
+
     const row = document.createElement("tr");
 
     const rollCell = document.createElement("td");
@@ -134,26 +129,34 @@
     const inputCell = document.createElement("td");
     const input = document.createElement("input");
     input.type = "number";
-    input.value = data[i] ?? 0;
+    input.value = data[i].max;
+
+    const progressCell = document.createElement("td");
+    const progressText = document.createElement("span");
+    progressText.textContent = `${data[i].current}/${data[i].max}`;
 
     input.addEventListener("input", () => {
-      data[i] = parseInt(input.value) || 0;
+      let val = parseInt(input.value) || 0;
+      data[i].max = val;
+      data[i].current = val;
+      progressText.textContent = `${val}/${val}`;
       saveData();
+      updateRowStyle(row, data[i].current, data[i].max);
     });
 
     inputCell.appendChild(input);
+    progressCell.appendChild(progressText);
 
     const actionCell = document.createElement("td");
     const button = document.createElement("button");
     button.textContent = "Decrease";
 
     button.addEventListener("click", () => {
-      let currentValue = parseInt(input.value) || 0;
-      if (currentValue > 0) {
-        currentValue--;
-        input.value = currentValue;
-        data[i] = currentValue;
+      if (data[i].current > 0) {
+        data[i].current--;
+        progressText.textContent = `${data[i].current}/${data[i].max}`;
         saveData();
+        updateRowStyle(row, data[i].current, data[i].max);
       }
     });
 
@@ -161,7 +164,10 @@
 
     row.appendChild(rollCell);
     row.appendChild(inputCell);
+    row.appendChild(progressCell);
     row.appendChild(actionCell);
+
+    updateRowStyle(row, data[i].current, data[i].max);
 
     tableBody.appendChild(row);
   }
